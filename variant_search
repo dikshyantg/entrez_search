@@ -1,0 +1,27 @@
+import myvariant
+
+def rsid_to_position(rsids):
+    mv = myvariant.MyVariantInfo()
+
+    # Querying the RSIDs
+    results = mv.querymany(rsids, scopes='dbsnp.rsid', fields='dbsnp', species='human')
+
+    # Extracting relevant information
+    positions = []
+    for result in results:
+        if 'dbsnp' in result and 'chrom' in result['dbsnp'] and 'hg19' in result['dbsnp']:
+            chrom = result['dbsnp']['chrom']
+            pos = result['dbsnp']['hg19']['start']
+            positions.append((result['query'], chrom, pos))
+        else:
+            positions.append((result['query'], None, None))
+    
+    # Creating a DataFrame for easy visualization
+    import pandas as pd
+    df = pd.DataFrame(positions, columns=['RSID', 'Chromosome', 'Position'])
+    return df
+
+# Example usage
+rsids = ['rs7412', 'rs429358', 'rs123']
+positions_df = rsid_to_position(rsids)
+print(positions_df)
